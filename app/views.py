@@ -5,11 +5,12 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file creates your application.
 """
 
+from crypt import methods
 from app import app
 from flask import render_template, request, jsonify, send_file
 import os
-
-
+from app.forms import UploadForm
+from werkzeug.utils import secure_filename
 ###
 # Routing for your application.
 ###
@@ -17,6 +18,27 @@ import os
 @app.route('/')
 def index():
     return jsonify(message="This is the beginning of our API")
+
+@app.route('/api/upload',methods=['POST'])
+def upload():
+    uploadform=UploadForm()
+    filefolder = './uploads'
+    if request.method == 'POST':
+        if uploadform.validate_on_submit(): 
+            description=uploadform.description.data
+            photo=uploadform.photo.data
+            filename = secure_filename(photo.filename)
+            photo.save(os.path.join(filefolder, filename)) 
+            return {
+                "message": "File Upload Successful",
+                "filename" : filename,
+                "description": description
+            }
+        else:
+            return {"errors": [{form_errors(uploadform)},{}]}
+
+
+
 
 
 ###
