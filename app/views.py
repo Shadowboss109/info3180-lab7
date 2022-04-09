@@ -35,7 +35,7 @@ def upload():
                 "description": description
             }
         else:
-            return {"errors": [{form_errors(uploadform)},{}]}
+            return {"errors": [{err} for err in form_errors(uploadform)]}
 
 
 
