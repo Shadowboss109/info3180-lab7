@@ -5,12 +5,14 @@ Werkzeug Documentation:  https://werkzeug.palletsprojects.com/
 This file creates your application.
 """
 
-from crypt import methods
 from app import app
 from flask import render_template, request, jsonify, send_file
 import os
 from app.forms import UploadForm
 from werkzeug.utils import secure_filename
+from flask_wtf.csrf import generate_csrf
+from os import getcwd
+from os.path import join
 ###
 # Routing for your application.
 ###
@@ -28,7 +30,7 @@ def upload():
             description=uploadform.description.data
             photo=uploadform.photo.data
             filename = secure_filename(photo.filename)
-            photo.save(os.path.join(filefolder, filename)) 
+            photo.save(join(getcwd(),app.config['UPLOAD_FOLDER'] , filename))
             return {
                 "message": "File Upload Successful",
                 "filename" : filename,
@@ -38,7 +40,9 @@ def upload():
             return {"errors": [{err} for err in form_errors(uploadform)]}
 
 
-
+@app.route('/api/csrf-token', methods=['GET'])
+def get_csrf():
+    return jsonify({'csrf_token': generate_csrf()})
 
 
 ###
